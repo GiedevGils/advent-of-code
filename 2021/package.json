@@ -1,0 +1,11 @@
+{
+  "name": "aoc-2021",
+  "version": "1.0.0",
+  "description": "my 2021 advent of code code :D",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Giede van Gils",
+  "license": "MIT"
+}
