@@ -10,7 +10,7 @@ module.exports = {
     ecmaVersion: 12
   },
   rules: {
-    'no-console': 'none',
+    'no-console': 'off',
     'no-debugger': 'warn',
     'no-trailing-spaces': 'warn',
     'comma-dangle': 'warn',
