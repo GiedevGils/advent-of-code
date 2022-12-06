@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "my 2022 advent of code code :D ",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -15,6 +13,7 @@
     "eslint-plugin-promise": "^5.2.0"
   },
   "dependencies": {
+    "nodemon": "^2.0.20",
     "ramda": "^0.28.0"
   }
 }
