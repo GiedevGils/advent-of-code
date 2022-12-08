@@ -35,7 +35,6 @@ input.on('close', () => {
   Object.entries(fsMeta).forEach(([dir, size]) => {
     const parentDirs = dir.split('/')
     parentDirs.shift() // first character is empty, because it starts with a /. remove that empty char as it is irrelevant
-
     parentDirs.reduce((previous, current) => {
       fsMeta[previous] += size
 
@@ -51,8 +50,11 @@ input.on('close', () => {
 
   console.log({ usedSpace, GOAL_SPACE, toBeFreed })
 
-  Object.values(fsMeta).forEach(size => {
+  console.log(fsMeta)
+
+  Object.entries(fsMeta).forEach(([name, size]) => {
     if (size >= toBeFreed) {
+      console.log(`deletion candidate: ${name || 'root'} at size ${size}`)
       potentialDirs.push(size)
     }
   })
