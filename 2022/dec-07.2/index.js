@@ -7,20 +7,18 @@ let currentFilePath = ''
 const filesystem = {}
 
 input.on('line', line => {
-  if (line.startsWith('$')) {
-    if (line.includes('cd')) {
-      if (line.includes('..')) {
-        const fullPath = currentFilePath.split('/')
-        fullPath.pop()
-        currentFilePath = fullPath.join('/')
-      } else if (line.includes('/')) currentFilePath = ''
-      else {
-        const newdir = line.split(' ')[2]
-        currentFilePath += `/${newdir}`
-      }
-
-      if (!filesystem[currentFilePath]) filesystem[currentFilePath] = {}
+  if (line.startsWith('$ cd')) {
+    if (line.includes('..')) {
+      const fullPath = currentFilePath.split('/')
+      fullPath.pop()
+      currentFilePath = fullPath.join('/')
+    } else if (line.includes('/')) currentFilePath = ''
+    else {
+      const newdir = line.split(' ')[2]
+      currentFilePath += `/${newdir}`
     }
+
+    if (!filesystem[currentFilePath]) filesystem[currentFilePath] = {}
   } else {
     if (!isNaN(+line.at(0))) filesystem[currentFilePath][line.split(' ')[1]] = +line.split(' ')[0]
   }

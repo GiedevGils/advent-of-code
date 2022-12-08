@@ -8,7 +8,7 @@ const filesystem = {}
 
 input.on('line', line => {
   if (line.startsWith('$')) {
-    if (line.includes('cd')) {
+    if (line.startsWith('$ cd')) {
       if (line.includes('..')) {
         const fullPath = currentFilePath.split('/')
         fullPath.pop()
