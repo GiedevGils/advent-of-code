@@ -42,13 +42,11 @@ input.on('close', () => {
 
   const potentialDirs = []
 
+  const MAX_SPACE = 70000000
   const GOAL_SPACE = 30000000
   const usedSpace = fsMeta['']
-  const toBeFreed = usedSpace - GOAL_SPACE
-
-  console.log({ usedSpace, GOAL_SPACE, toBeFreed })
-
-  console.log(fsMeta)
+  const currentFreeSpace = MAX_SPACE - usedSpace
+  const toBeFreed = GOAL_SPACE - currentFreeSpace
 
   Object.entries(fsMeta).forEach(([name, size]) => {
     if (size >= toBeFreed) {
