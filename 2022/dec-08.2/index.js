@@ -19,14 +19,15 @@ input.on('line', line => {
 const getPointsForTreeAxis = (trees, scores, currentTreeHeight) => {
   let skip = false
 
-  if (trees.length === 0) return
+  if (trees.length === 0) {
+    scores.push(0)
+    return
+  }
 
   trees.forEach((tree, idx) => {
     if (skip) return
     if (currentTreeHeight === tree || !trees[idx + 1]) {
       scores.push(idx + 1)
-      skip = true
-    } else if (currentTreeHeight < tree) {
       skip = true
     }
   })
