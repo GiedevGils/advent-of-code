@@ -26,7 +26,7 @@ const getPointsForTreeAxis = (trees, scores, currentTreeHeight) => {
 
   trees.forEach((tree, idx) => {
     if (skip) return
-    if (currentTreeHeight === tree || !trees[idx + 1]) {
+    if (currentTreeHeight < tree || !trees[idx + 1]) {
       scores.push(idx + 1)
       skip = true
     }
