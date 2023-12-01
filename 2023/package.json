@@ -1,0 +1,19 @@
+{
+  "name": "aoc-2022",
+  "version": "1.0.0",
+  "description": "my 2022 advent of code code :D ",
+  "main": "index.js",
+  "scripts": {},
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0"
+  },
+  "dependencies": {
+    "nodemon": "^3.0.1",
+    "ramda": "^0.28.0"
+  }
+}
