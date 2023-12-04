@@ -29,7 +29,10 @@ input.on('close', () => {
         continue
       }
 
-      if (isSpecialCharacter(char)) continue
+      if (isSpecialCharacter(char)) {
+        currentNumber = ''
+        continue
+      }
 
       const charsToCheck = [schematic[x][y - 1], schematic[x][y + 1]]
 
