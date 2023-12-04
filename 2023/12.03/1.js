@@ -7,76 +7,48 @@ const schematic = []
 const numbers = []
 
 input.on('line', line => {
-  schematic.push(line)
-
-  const nrs = line.split('').map(x => {
-    if (x === '.') return '_'
-    if (isSpecialCharacter(x)) return '_'
-    return x
-  }).join('').split('_').filter(_ => _)
-
-  numbers.push(nrs)
+  schematic.push(line.split(''))
 })
 
 input.on('close', () => {
-  let added = 0
-  const numbersThatWork = []
+  for (let x = 0; x < schematic.length; x++) { // rows
+    let currentNumber = ''
+    let needToAdd = false
 
-  numbers.forEach((element, idx) => {
-    for (const number of element) {
-      const firstIndex = schematic[idx].indexOf(number)
-      const lastIndex = firstIndex + (number.length - 1)
+    for (let y = 0; y < schematic[x].length; y++) { // columns
+      const char = schematic[x][y]
 
-      const charBeforestring = schematic[idx][firstIndex - 1]
-      const charAfterString = schematic[idx][lastIndex + 1]
+      if (!isNaN(char)) {
+        currentNumber += char
+      }
 
-      if (isSpecialCharacter(charBeforestring) || isSpecialCharacter(charAfterString)) {
-        added += +number
-        numbersThatWork.push(+number)
-
+      if (char === '.') {
+        if (currentNumber.length > 0) numbers.push({ nr: +currentNumber, needToAdd, c: `${x + 1}, ${y}` })
+        currentNumber = ''
+        needToAdd = false
         continue
       }
 
-      const nrsToCheck = []
+      if (isSpecialCharacter(char)) continue
 
-      for (let i = firstIndex - 1; i <= lastIndex + 1; i++) {
-        nrsToCheck.push(i)
+      const charsToCheck = [schematic[x][y - 1], schematic[x][y + 1]]
+
+      if (schematic[x - 1]) {
+        charsToCheck.push(schematic[x - 1][y + 1], schematic[x - 1][y - 1], schematic[x - 1][y])
       }
 
-      const lineBefore = schematic[idx - 1]
-      const lineAfter = schematic[idx + 1]
-
-      if (lineBefore) {
-        for (const nrToCheck of nrsToCheck) {
-          const char = lineBefore[nrToCheck]
-
-          if (isSpecialCharacter(char)) {
-            added += +number
-            numbersThatWork.push(+number)
-
-            break
-          }
-        }
+      if (schematic[x + 1]) {
+        charsToCheck.push(schematic[x + 1][y + 1], schematic[x + 1][y - 1], schematic[x + 1][y])
       }
 
-      if (lineAfter) {
-        for (const nrToCheck of nrsToCheck) {
-          const char = lineAfter[nrToCheck]
-          if (isSpecialCharacter(char)) {
-            added += +number
-            numbersThatWork.push(+number)
-
-            break
-          }
-        }
-      }
+      if (charsToCheck.some(x => isSpecialCharacter(x))) needToAdd = true
     }
-  })
+  }
 
-  console.log({ added })
-  console.log(numbersThatWork.at(15))
+  console.log(numbers)
+  console.log(numbers.filter(x => x.needToAdd).map(x => x.nr).reduce((prev, curr) => prev + curr, 0))
 })
 
 function isSpecialCharacter (str) {
-  return '*$+-%#&=/@'.includes(str) /* eslint-disable-line */
+  return '*$+-%#&=/@'.includes(str)
 }
