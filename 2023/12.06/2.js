@@ -16,17 +16,20 @@ input.on('close', () => {
   const nrOfWaysToBeatRecord = []
   const [times, distances] = lines
 
-  times.forEach((time, timeIdx) => {
-    let nrOfWaysToBeatRecordForThisTime = 0
-    for (let idx = 0; idx < time; idx++) {
-      const distance = idx * (time - idx)
+  const time = +times.join('')
+  const distance = +distances.join('')
 
-      if (distance > distances[timeIdx]) {
-        nrOfWaysToBeatRecordForThisTime++
-      }
+  console.log({ time, distance })
+
+  let nrOfWaysToBeatRecordForThisTime = 0
+  for (let idx = 0; idx < time; idx++) {
+    const raceDistance = idx * (time - idx)
+
+    if (raceDistance > distance) {
+      nrOfWaysToBeatRecordForThisTime++
     }
-    nrOfWaysToBeatRecord.push(nrOfWaysToBeatRecordForThisTime)
-  })
+  }
+  nrOfWaysToBeatRecord.push(nrOfWaysToBeatRecordForThisTime)
 
   console.log(nrOfWaysToBeatRecord.reduce((prev, curr) => prev * curr, 1))
 })
