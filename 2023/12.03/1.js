@@ -4,54 +4,40 @@ const readline = require('readline')
 const input = readline.createInterface({ input: fs.createReadStream('./input.txt') })
 
 const schematic = []
-const numbers = []
 
 input.on('line', line => {
-  schematic.push(line.split(''))
+  schematic.push(line)
 })
 
 input.on('close', () => {
-  for (let x = 0; x < schematic.length; x++) { // rows
-    let currentNumber = ''
-    let needToAdd = false
+  const input = schematic
+  let total = 0
 
-    for (let y = 0; y < schematic[x].length; y++) { // columns
-      const char = schematic[x][y]
+  schematic.forEach((line, idx) => {
+    const numbers = []
+    /** @type {RegExp} */
+    const isNumRegex = /\d+/g
+    let match = ''
 
-      if (!isNaN(char)) {
-        currentNumber += char
-      }
-
-      if (char === '.') {
-        if (currentNumber.length > 0) numbers.push({ nr: +currentNumber, needToAdd, c: `${x + 1}, ${y}` })
-        currentNumber = ''
-        needToAdd = false
-        continue
-      }
-
-      if (isSpecialCharacter(char)) {
-        currentNumber = ''
-        continue
-      }
-
-      const charsToCheck = [schematic[x][y - 1], schematic[x][y + 1]]
-
-      if (schematic[x - 1]) {
-        charsToCheck.push(schematic[x - 1][y + 1], schematic[x - 1][y - 1], schematic[x - 1][y])
-      }
-
-      if (schematic[x + 1]) {
-        charsToCheck.push(schematic[x + 1][y + 1], schematic[x + 1][y - 1], schematic[x + 1][y])
-      }
-
-      if (charsToCheck.some(x => isSpecialCharacter(x))) needToAdd = true
+    while ((match = isNumRegex.exec(line)) !== null) {
+      numbers.push({ start: match.index, end: isNumRegex.lastIndex, number: +match[0] })
     }
-  }
 
-  console.log(numbers)
-  console.log(numbers.filter(x => x.needToAdd).map(x => x.nr).reduce((prev, curr) => prev + curr, 0))
+    for (const number of numbers) {
+      let toAdd = false
+
+      for (let r = idx - 1; r <= idx + 1; r++) {
+        for (let c = number.start - 1; c <= number.end; c++) {
+          if (r >= 0 && r < input.length && c >= 0 && input[idx].length > c) {
+            if (isNaN(parseInt(input[r][c])) && input[r][c] !== '.') {
+              toAdd = true
+            }
+          }
+        }
+      }
+      if (toAdd) total += number.number
+    }
+  })
+
+  console.log(total)
 })
-
-function isSpecialCharacter (str) {
-  return '*$+-%#&=/@'.includes(str)
-}
