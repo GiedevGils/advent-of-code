@@ -17,9 +17,7 @@ input.on('close', () => {
 
   const connectedPipes = getConnectingPipes(startPos)
 
-  Object.values(connectedPipes).forEach(location => {
-    checkLocation(location)
-  })
+  checkLocation(Object.values(connectedPipes))
 
   console.log({ distance: (distance + 1) / 2 })
 })
@@ -71,33 +69,33 @@ function getConnectingPipes (location) {
   return result
 }
 
-// function getStartLetter (startingPositions) {
-//   if (startingPositions.north && startingPositions.south) { return '|' }
-//   if (startingPositions.east && startingPositions.west) { return '-' }
-//   if (startingPositions.north && startingPositions.east) { return 'L' }
-//   if (startingPositions.east && startingPositions.south) { return 'F' }
-//   if (startingPositions.south && startingPositions.west) { return '7' }
-//   if (startingPositions.west && startingPositions.north) { return 'J' }
-// }
-
 let distance = 0
 
-function checkLocation (location) {
-  if (passedPositions.has(`${location.join(',')}`)) {
-    return
+function checkLocation (locations) {
+  if (!locations.length) return
+  const locationsToCheck = []
+
+  for (let i = 0; i < locations.length; i++) {
+    const location = locations[i]
+
+    if (passedPositions.has(`${location.join(',')}`)) {
+      continue
+    }
+    passedPositions.add(`${location.join(',')}`)
+
+    const [row, column] = location
+
+    if (!connectedDiagram[row]) connectedDiagram[row] = []
+
+    connectedDiagram[row][column] = distance
+
+    const pipesToCheck = getConnectingPipes(location)
+
+    Object.values(pipesToCheck).forEach(loc => {
+      locations.push(loc)
+    })
+    distance++
   }
-  passedPositions.add(`${location.join(',')}`)
-  distance++
 
-  const [row, column] = location
-
-  if (!connectedDiagram[row]) connectedDiagram[row] = []
-
-  connectedDiagram[row][column] = distance
-
-  const pipesToCheck = getConnectingPipes(location)
-
-  Object.values(pipesToCheck).forEach(loc => {
-    checkLocation(loc)
-  })
+  checkLocation(locationsToCheck)
 }
