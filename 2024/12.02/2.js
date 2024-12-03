@@ -13,43 +13,45 @@ input.on('close', () => {
   let nrOfSafeReports = 0
 
   reports.forEach(report => {
-    const { safe } = report.reduce((object, curr) => {
-      let { prev, safe, isIncreasing, prevSafe, isDampened } = object
-
-      if (prev === null) return { ...object, prev: curr }
-
-      if (isIncreasing === undefined && prev !== null) {
-        if (prev < curr) isIncreasing = true
-        else if (prev > curr) isIncreasing = false
+    if (isSafeReport(report)) {
+      nrOfSafeReports++
+    } else {
+      for (let i = 0; i < report.length; i++) {
+        if (isSafeReport(report.toSpliced(i, 1))) {
+          nrOfSafeReports++
+          break
+        }
       }
-      const diff = Math.abs(prev - curr)
-
-      if ((prev > curr && isIncreasing) || (prev < curr && !isIncreasing)) {
-        safe = false
-      }
-
-      if (diff < 1 || diff > 3) {
-        safe = false
-      }
-
-      if (!safe && isDampened) return { prev: undefined, safe: false, prevSafe: false, isDampened: true }
-      if (!safe && !prevSafe) return { prev: undefined, safe: false, prevSafe: false, isDampened: undefined }
-
-      if (safe === false && prevSafe === true && !isDampened) {
-        return { safe: true, prev: prev, isIncreasing, prevSafe: false, isDampened: true }
-      }
-
-      return { safe, prevSafe: true, prev: curr, isIncreasing, isDampened }
-    }, { prev: null, safe: true, isIncreasing: undefined, prevSafe: true, isDampened: false })
-
-    if (!safe) console.log({ safe, report })
-
-    if (safe) nrOfSafeReports++
+    }
   })
 
   // 584 too high
   // 554 too low
   // 862 incorrect
   // 559 incorrect
+  // veel inspiratie opgedaan uit https://github.com/sk1talets/advent-of-code/blob/main/2024/2/script2.js
   console.log({ nrOfSafeReports })
 })
+
+function isSafeReport (array) {
+  let safe = true
+  const isIncreasing = array[0] < array[1]
+  array.forEach((currVal, idx) => {
+    if (!safe) return
+    if (idx === array.length - 1) return
+
+    const nextVal = array[idx + 1]
+
+    if ((currVal > nextVal && isIncreasing) || (currVal < nextVal && !isIncreasing)) {
+      safe = false
+      return
+    }
+
+    const diff = Math.abs(currVal - nextVal)
+
+    if (diff < 1 || diff > 3) {
+      safe = false
+    }
+  })
+  return safe
+}
