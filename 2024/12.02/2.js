@@ -9,49 +9,48 @@ input.on('line', line => {
   reports.push(line.split(' ').map(Number))
 })
 
-
 input.on('close', () => {
   let nrOfSafeReports = 0
 
-  const reps = {}
+  reports.forEach(report => {
+    console.log('-----')
+    const { safe } = report.reduce((object, curr) => {
+      let { prev, safe, isIncreasing, prevSafe } = object
 
-  reports.forEach((report, idx) => {
-
-    reps[idx] = {
-      array: report,
-      isIncreasing: report[0] < report[1],
-      isDampened: false
-    }    
-  })
-
-  Object.values(reps).forEach(({array, isIncreasing}, idx) => {
-    let safe = true
-
-    array.forEach((currVal, idx) => {
-      if(!safe) return
-      if(idx === array.length - 1) return
-      
-      const nextVal = array[idx + 1]
-      const dampenedVal = array[idx + 2]
-      
-      if((currVal > nextVal && isIncreasing) || (currVal < nextVal && !isIncreasing)) {
-        if((currVal > dampenedVal && isIncreasing) || (currVal < dampenedVal && !isIncreasing)) {
-          safe = false
-          return
-        }
+      if (isIncreasing === undefined && prev !== null) {
+        if (prev < curr) isIncreasing = true
+        else if (prev > curr) isIncreasing = false
       }
 
-      const diff = Math.abs(currVal - nextVal)
-      const dampenedDiff = Math.abs(currVal - dampenedVal)
+      console.log({ curr, prev, safe, isIncreasing })
 
-      if((diff < 1 || diff > 3) && (dampenedDiff < 1 || dampenedDiff > 3)) {
+      if (!safe && !prevSafe) return { prev: undefined, safe: false, prevSafe: false }
+      if (prev === null) return { ...object, prev: curr }
+
+      const diff = Math.abs(prev - curr)
+
+      if ((prev > curr && isIncreasing) || (prev < curr && !isIncreasing)) {
         safe = false
       }
 
-      if(safe && idx === array.length - 2) nrOfSafeReports++
-    })
+      if (diff < 1 || diff > 3) {
+        safe = false
+      }
+
+      if (safe === false && prevSafe === true) {
+        return { safe: true, prev: prev, isIncreasing, prevSafe: false }
+      }
+
+      return { safe, prevSafe: true, prev: curr, isIncreasing }
+    }, { prev: null, safe: true, isIncreasing: undefined })
+
+    console.log({ safe })
+
+    if (safe) nrOfSafeReports++
   })
 
   // 584 too high
-  console.log(nrOfSafeReports)
+  // 554 too low
+  // 862 incorrect
+  console.log({ nrOfSafeReports })
 })
