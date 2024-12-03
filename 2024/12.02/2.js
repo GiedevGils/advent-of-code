@@ -13,20 +13,15 @@ input.on('close', () => {
   let nrOfSafeReports = 0
 
   reports.forEach(report => {
-    console.log('-----')
     const { safe } = report.reduce((object, curr) => {
-      let { prev, safe, isIncreasing, prevSafe } = object
+      let { prev, safe, isIncreasing, prevSafe, isDampened } = object
+
+      if (prev === null) return { ...object, prev: curr }
 
       if (isIncreasing === undefined && prev !== null) {
         if (prev < curr) isIncreasing = true
         else if (prev > curr) isIncreasing = false
       }
-
-      console.log({ curr, prev, safe, isIncreasing })
-
-      if (!safe && !prevSafe) return { prev: undefined, safe: false, prevSafe: false }
-      if (prev === null) return { ...object, prev: curr }
-
       const diff = Math.abs(prev - curr)
 
       if ((prev > curr && isIncreasing) || (prev < curr && !isIncreasing)) {
@@ -37,14 +32,17 @@ input.on('close', () => {
         safe = false
       }
 
-      if (safe === false && prevSafe === true) {
-        return { safe: true, prev: prev, isIncreasing, prevSafe: false }
+      if (!safe && isDampened) return { prev: undefined, safe: false, prevSafe: false, isDampened: true }
+      if (!safe && !prevSafe) return { prev: undefined, safe: false, prevSafe: false, isDampened: undefined }
+
+      if (safe === false && prevSafe === true && !isDampened) {
+        return { safe: true, prev: prev, isIncreasing, prevSafe: false, isDampened: true }
       }
 
-      return { safe, prevSafe: true, prev: curr, isIncreasing }
-    }, { prev: null, safe: true, isIncreasing: undefined })
+      return { safe, prevSafe: true, prev: curr, isIncreasing, isDampened }
+    }, { prev: null, safe: true, isIncreasing: undefined, prevSafe: true, isDampened: false })
 
-    console.log({ safe })
+    if (!safe) console.log({ safe, report })
 
     if (safe) nrOfSafeReports++
   })
@@ -52,5 +50,6 @@ input.on('close', () => {
   // 584 too high
   // 554 too low
   // 862 incorrect
+  // 559 incorrect
   console.log({ nrOfSafeReports })
 })
