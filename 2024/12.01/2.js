@@ -16,8 +16,7 @@ input.on('line', line => {
 input.on('close', () => {
   let simScore = 0
 
-  left.forEach(x => simScore += x * right.filter(y => x === y).length)
+  left.forEach(x => { simScore += x * right.filter(y => x === y).length })
 
   console.log(simScore)
-
 })

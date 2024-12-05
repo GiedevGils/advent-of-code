@@ -10,7 +10,7 @@ input.on('line', line => {
 })
 
 input.on('close', () => {
-  const regexp = /(mul\(\d+,\d+\))|(don\'t\(\))|(do\(\))/g
+  const regexp = /(mul\(\d+,\d+\))|(don't\(\))|(do\(\))/g
   const groups = mem.matchAll(regexp)
 
   let total = 0
@@ -19,7 +19,7 @@ input.on('close', () => {
   for (const match of groups) {
     const expression = match[0]
 
-    if(expression.includes('don')) {
+    if (expression.includes('don')) {
       include = false
       continue
     }
@@ -28,12 +28,12 @@ input.on('close', () => {
       continue
     }
 
-    if(!include) continue
+    if (!include) continue
 
     console.log(expression)
 
     const digits = expression.matchAll(/(\d+)/g)
-    
+
     const nrs = []
 
     for (const digit of digits) {
@@ -41,11 +41,10 @@ input.on('close', () => {
     }
 
     const matchResult = nrs.reduce((prev, curr) => {
-      return prev*curr
-    },1)
+      return prev * curr
+    }, 1)
 
-
-    total+= matchResult
+    total += matchResult
   }
 
   console.log(total)

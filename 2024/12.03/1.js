@@ -19,7 +19,7 @@ input.on('close', () => {
     const expression = match[0]
 
     const digits = expression.matchAll(/(\d+)/g)
-    
+
     const nrs = []
 
     for (const digit of digits) {
@@ -27,10 +27,10 @@ input.on('close', () => {
     }
 
     const matchResult = nrs.reduce((prev, curr) => {
-      return prev*curr
-    },1)
+      return prev * curr
+    }, 1)
 
-    total+= matchResult
+    total += matchResult
   }
 
   console.log(total)

@@ -13,14 +13,13 @@ input.on('line', line => {
 })
 
 input.on('close', () => {
-
   left.sort()
   right.sort()
 
   let diff = 0
 
   left.forEach((leftVal, idx) => {
-    rightVal = right[idx]
+    const rightVal = right[idx]
 
     diff += Math.abs(leftVal - rightVal)
   })
