@@ -1,8 +1,10 @@
 {
-  "name": "aoc-2024",
+  "name": "aoc",
   "version": "1.0.0",
-  "description": "my 2024 advent of code code :D ",
-  "scripts": {},
+  "description": "My personal repo for advent of code ",
+  "scripts": {
+    "test": "jest --roots . --watch"
+  },
   "author": "",
   "license": "MIT",
   "devDependencies": {
@@ -12,6 +14,7 @@
     "eslint-plugin-promise": "^5.2.0"
   },
   "dependencies": {
+    "jest": "^29.7.0",
     "ramda": "^0.28.0"
   }
 }
