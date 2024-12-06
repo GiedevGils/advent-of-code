@@ -44,22 +44,22 @@ input.on('close', () => {
 })
 
 function isGridFinite (grid, newGrid) {
-  const visitedDirectionPositions = new Set()
-  const { getSingle } = makeGridTraverser(newGrid)
+  const { getSingle, getAll } = makeGridTraverser(newGrid)
   let { posX, posY } = findCursor(grid)
-
   let direction = 'above'
 
+  let hasNoticedO = false
+
+  setInterval(() => {
+    console.log(direction)
+  }, 500)
+
   while (direction) {
-    // if the cursor has already passed ovre this location with this specific direction
-    // it is stuck in a loop
-    if (visitedDirectionPositions.has(`${direction}${posX}${posY}`)) return false
-
-    visitedDirectionPositions.add(`${direction}${posX}${posY}`)
-
     const { newIdxX, newIdxY, value } = getSingle(direction)(posX, posY)
     const newDirection = getNextDirection(direction)
 
+    if (hasNoticedO && value === 'O' && getAll(newDirection)(posX, posY).includes('#')) return false
+    if (!hasNoticedO && value === 'O') hasNoticedO = true
     if (!value) return true
 
     if (value === '#' || value === 'O') {
