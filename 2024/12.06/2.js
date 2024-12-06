@@ -31,7 +31,7 @@ input.on('close', () => {
 
       newGrid[idxX][idxY] = 'O'
 
-      const isFinite = isGridFinite(newGrid)
+      const isFinite = isGridFinite(grid, newGrid)
 
       if (!isFinite) possibleBlockages++
     }
@@ -43,9 +43,9 @@ input.on('close', () => {
   console.timeEnd('total')
 })
 
-function isGridFinite (grid) {
+function isGridFinite (grid, newGrid) {
   const visitedDirectionPositions = new Set()
-  const { getSingle } = makeGridTraverser(grid)
+  const { getSingle } = makeGridTraverser(newGrid)
   let { posX, posY } = findCursor(grid)
 
   let direction = 'above'

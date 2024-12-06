@@ -5,8 +5,8 @@ module.exports = {
 
 function findCursor (grid) {
   let determinedPos = false
-  let posX = 0
-  let posY = 0
+  let posX = -1
+  let posY = -1
 
   grid.forEach((line, idxX) => {
     if (determinedPos) return
@@ -19,6 +19,8 @@ function findCursor (grid) {
       }
     })
   })
+
+  if (posX === -1 && posY === -1) throw new Error('no cursor found')
 
   return { posX, posY }
 }
