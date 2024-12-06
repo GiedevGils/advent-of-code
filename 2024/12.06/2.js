@@ -25,23 +25,23 @@ input.on('close', () => {
   const startPosX = posX
   const startPosY = posY
 
-  const blockedCoords = new Set()
+  const infinityCoords = new Set()
 
   while (direction) {
     const { newIdxX, newIdxY, value } = getSingle(direction)(posX, posY)
 
+    if (!value) { break }
+
     if (value !== '#' && value !== '^') {
-      const pos = `${newIdxX}${newIdxY}`
+      const pos = `${newIdxX},${newIdxY}`
       try {
         const newGrid = R.clone(grid)
 
-        newGrid[newIdxX][newIdxY] = 'O'
+        newGrid[newIdxX][newIdxY] = '#'
 
-        if (!blockedCoords.has(pos)) {
-          walkGrid({ cursorPos: [startPosX, startPosY], grid: newGrid })
-        }
+        walkGrid({ cursorPos: [startPosX, startPosY], grid: newGrid })
       } catch (e) {
-        blockedCoords.add(pos)
+        infinityCoords.add(pos)
       }
     }
 
@@ -51,8 +51,6 @@ input.on('close', () => {
       posX = newIdxX
       posY = newIdxY
     }
-
-    if (!value) { break }
   }
 
   // 13 niet correct <-- incorrect input
@@ -64,12 +62,13 @@ input.on('close', () => {
   // 1514 not right
   // 1266 not right
   // 1302 not right
+  // 1296 not right
 
   // to get to: 1304
   // behaald met hulp van https://github.com/derfritz/AoC24/blob/main/Day6/solution.js
   // echter oplossing ge pair-programmed. niet gekopieerd.
   // alleen het doel gevonden zodat ik niet permanent hoefde te wachten
-  console.log({ infiniteLoops: blockedCoords.size })
+  console.log({ infiniteLoops: infinityCoords.size })
   console.timeEnd('total duration')
 })
 
@@ -82,13 +81,14 @@ function walkGrid ({ cursorPos: [x, y], grid }) {
 
   while (direction) {
     const pos = `${direction} - ${x},${y}`
+
     if (visitedPositions.has(pos)) throw new Error('infinite')
 
     visitedPositions.add(pos)
 
     const { newIdxX, newIdxY, value } = getSingle(direction)(x, y)
 
-    if (!value) direction = null
+    if (!value) break
 
     if (value === '#' || value === 'O') {
       direction = getNextDirection(direction)
