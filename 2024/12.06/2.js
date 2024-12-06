@@ -1,8 +1,8 @@
 const fs = require('fs')
 const readline = require('readline')
+const R = require('ramda')
 const { makeGridTraverser } = require('../../lib/js')
 const { findCursor, getNextDirection } = require('./lib')
-const R = require('ramda')
 
 const input = readline.createInterface({ input: fs.createReadStream('./input.txt') })
 
@@ -16,33 +16,43 @@ input.on('line', line => {
 input.on('close', () => {
   console.time('total duration')
 
-  let possibleBlockages = 0
-  const blockedPositions = new Set()
+  let direction = 'above'
 
   const { getSingle } = makeGridTraverser(grid)
+
   let { posX, posY } = findCursor(grid)
 
-  let direction = 'above'
+  const startPosX = posX
+  const startPosY = posY
+
+  const blockedCoords = new Set()
 
   while (direction) {
     const { newIdxX, newIdxY, value } = getSingle(direction)(posX, posY)
 
-    if (!value) direction = null
+    if (value !== '#' && value !== '^') {
+      const pos = `${newIdxX}${newIdxY}`
+      try {
+        const newGrid = R.clone(grid)
+
+        newGrid[newIdxX][newIdxY] = 'O'
+
+        if (!blockedCoords.has(pos)) {
+          walkGrid({ cursorPos: [startPosX, startPosY], grid: newGrid })
+        }
+      } catch (e) {
+        blockedCoords.add(pos)
+      }
+    }
 
     if (value === '#') {
       direction = getNextDirection(direction)
     } else {
       posX = newIdxX
       posY = newIdxY
-
-      const newGrid = R.clone(grid)
-      if (value) newGrid[newIdxX][newIdxY] = 'O'
-
-      if (!isGridFinite(grid, newGrid)) {
-        blockedPositions.add(`${newIdxX},${newIdxY}`)
-        possibleBlockages = blockedPositions.size
-      }
     }
+
+    if (!value) { break }
   }
 
   // 13 niet correct <-- incorrect input
@@ -50,37 +60,41 @@ input.on('close', () => {
   // 3494 not right
   // 3495 not right
   // 3647 not right
-  console.log({ possibleBlockages })
+  // 1518 not right
+  // 1514 not right
+  // 1266 not right
+  // 1302 not right
+
+  // to get to: 1304
+  // behaald met hulp van https://github.com/derfritz/AoC24/blob/main/Day6/solution.js
+  // echter oplossing ge pair-programmed. niet gekopieerd.
+  // alleen het doel gevonden zodat ik niet permanent hoefde te wachten
+  console.log({ infiniteLoops: blockedCoords.size })
   console.timeEnd('total duration')
 })
 
-function isGridFinite (grid, newGrid) {
-  const visitedDirectionPositions = new Set()
-  const { getSingle } = makeGridTraverser(newGrid)
-  let { posX, posY } = findCursor(grid)
+function walkGrid ({ cursorPos: [x, y], grid }) {
+  const visitedPositions = new Set()
+
+  const { getSingle } = makeGridTraverser(grid)
 
   let direction = 'above'
 
   while (direction) {
-    // if the cursor has already passed ovre this location with this specific direction
-    // it is stuck in a loop
-    if (visitedDirectionPositions.has(`${direction}${posX}${posY}`)) {
-      return false
-    }
+    const pos = `${direction} - ${x},${y}`
+    if (visitedPositions.has(pos)) throw new Error('infinite')
 
-    visitedDirectionPositions.add(`${direction}${posX}${posY}`)
+    visitedPositions.add(pos)
 
-    const { newIdxX, newIdxY, value } = getSingle(direction)(posX, posY)
+    const { newIdxX, newIdxY, value } = getSingle(direction)(x, y)
 
-    const newDirection = getNextDirection(direction)
-
-    if (!value) return true
+    if (!value) direction = null
 
     if (value === '#' || value === 'O') {
-      direction = newDirection
+      direction = getNextDirection(direction)
     } else {
-      posX = newIdxX
-      posY = newIdxY
+      x = newIdxX
+      y = newIdxY
     }
   }
 }
