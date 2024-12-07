@@ -1,5 +1,4 @@
 const fs = require('fs')
-const R = require('ramda')
 const readline = require('readline')
 
 const input = readline.createInterface({ input: fs.createReadStream('./input.txt') })
@@ -24,7 +23,7 @@ input.on('close', () => {
 
   let loop = 0
 
-  numbers.forEach(({ total, additives }) => {
+  numbers.forEach(({ total, additives }, idx) => {
     console.timeLog('total duration', loop)
     loop++
 
@@ -38,21 +37,17 @@ input.on('close', () => {
         continue
       }
       calcs = createCalculation(calcs, nr)
-      if (i === 1) { calcs.shift() }
     }
 
     let canBeTrue = false
 
     calcs
-      .filter(calc => {
-        return additives.every(nr => calc.includes(nr))
-      })
       .forEach(calc => {
-        // console.log(calc)
         const result = eval(calc) // eslint-disable-line
 
         if (result === total) canBeTrue = true
       })
+
     if (canBeTrue) calibrationResult += total
   })
 
@@ -66,12 +61,12 @@ input.on('close', () => {
  * @param {number} nr
  *  */
 function createCalculation (arr, nr) {
-  const copy = R.clone(arr)
+  const newCalcs = []
 
-  copy.forEach((calculation) => {
-    arr.push(`(${calculation}+${nr})`)
-    arr.push(`(${calculation}*${nr})`)
+  arr.forEach((calculation) => {
+    newCalcs.push(`(${calculation}+${nr})`)
+    newCalcs.push(`(${calculation}*${nr})`)
   })
 
-  return arr
+  return newCalcs
 }
