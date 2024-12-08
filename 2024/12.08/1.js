@@ -18,8 +18,6 @@ input.on('close', () => {
 
   const { isValid } = makeGridTraverser(grid)
 
-  // console.table(grid)
-
   const antinodes = new Set()
 
   /** @type {Array<{value: string, x: number, y: number}} */
@@ -41,8 +39,11 @@ input.on('close', () => {
       const isHigher = oX < x
       const isLeft = oY < y
 
-      const antinodeX = isHigher ? x + (x - oX) : x - (oX - x)
-      const antinodeY = isLeft ? y + (y - oY) : y - (oY - y)
+      const diffX = Math.abs(x - oX)
+      const diffY = Math.abs(y - oY)
+
+      const antinodeX = isHigher ? x + diffX : x - diffX
+      const antinodeY = isLeft ? y + diffY : y - diffY
 
       if (isValid(antinodeX, antinodeY)) antinodes.add(createCoordinate(antinodeX, antinodeY))
     })
