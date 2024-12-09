@@ -39,30 +39,26 @@ input.on('close', () => {
 
   filledItems.reverse()
 
-  emptyItems.forEach((empty) => {
-    let isDone = false
+  while (emptyItems.length) {
+    const empty = emptyItems.shift()
 
-    while (!isDone) {
-      for (let i = 0; i < filledItems.length; i++) {
-        const filled = filledItems[i]
+    for (let i = 0; i < filledItems.length; i++) {
+      const filled = filledItems[i]
 
-        if (filled.isDone) continue
+      if (filled.isDone) continue
 
-        if (filled.indices.length <= empty.indices.length) {
-          const newIndices = empty.indices.splice(0, filled.indices.length)
+      if (filled.indices.length <= empty.indices.length) {
+        if (filled.indices.at(0) < empty.indices.at(0)) continue
 
-          filled.indices = newIndices
-          filled.isDone = true
-        }
+        const newIndices = empty.indices.splice(0, filled.indices.length)
 
-        if (i === filledItems.length - 1) {
-          isDone = true
-        }
+        emptyItems.push({ indices: filled.indices })
+
+        filled.indices = newIndices
+        filled.isDone = true
       }
     }
-  })
-
-  console.log(diskmap)
+  }
 
   const result = Object.values(diskmap.filter(x => !x.isFreeSpace)).reduce((acc, curr) => {
     const id = curr.id
