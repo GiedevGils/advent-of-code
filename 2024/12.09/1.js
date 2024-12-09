@@ -3,13 +3,14 @@ const readline = require('readline')
 
 const input = readline.createInterface({ input: fs.createReadStream('./input.txt') })
 
-/** @type {Record<string, {indices: array<number>, isFreeSpace: boolean}>} */
-const diskmap = {}
+/** @type {Array<{indices: array<number>, isFreeSpace: boolean, id: number}>} */
+const diskmap = []
 
 input.on('line', line => {
   let isFreeSpace = false
   let currentIndex = 0
-  line.split('').forEach((char, idx) => {
+  let idx = 0
+  line.split('').forEach((char) => {
     for (let i = 0; i < Number(char); i++) {
       if (!diskmap[idx]) diskmap[idx] = { indices: [], isFreeSpace }
 
@@ -18,6 +19,9 @@ input.on('line', line => {
       currentIndex++
     }
     isFreeSpace = !isFreeSpace
+    if (Number(char) > 0) {
+      idx++
+    }
   })
 })
 
@@ -25,10 +29,8 @@ input.on('close', () => {
   console.time('total duration')
   console.timeLog('total duration', 'start')
 
-  console.log(diskmap)
-
-  const emptyItems = Object.values(diskmap).filter((v) => v.isFreeSpace === true)
-  const filledItems = Object.values(diskmap).filter((v) => v.isFreeSpace === false)
+  const emptyItems = diskmap.filter((v) => v.isFreeSpace === true)
+  const filledItems = diskmap.filter((v) => v.isFreeSpace === false)
 
   for (let i = 0; i < filledItems.length; i++) {
     const item = filledItems[i]
@@ -42,19 +44,38 @@ input.on('close', () => {
     filled.indices = []
 
     let toBeTakenFrom = emptyItems.find(x => x.indices.length > 0)
+
     while (toBeTakenFrom && filled.oldIndices.length) {
-      filled.oldIndices.pop()
-      filled.indices.push(toBeTakenFrom.indices.pop())
+      const currentIndex = filled.oldIndices.pop()
+      const toBeTakenIndex = toBeTakenFrom.indices.shift()
+
+      if (toBeTakenIndex < currentIndex) {
+        filled.indices.push(toBeTakenIndex)
+      } else {
+        filled.indices.push(currentIndex)
+      }
+
       toBeTakenFrom = emptyItems.find(x => x.indices.length > 0)
     }
 
     filled.indices.push(...filled.oldIndices)
 
-    delete filled.oldIncides
+    delete filled.oldIndices
+    delete filled.isFreeSpace
   })
 
-  console.log('--')
-  console.log(diskmap)
+  const result = Object.values(diskmap).reduce((acc, curr) => {
+    const id = curr.id
+    const totalIndicesTimesId = curr.indices.reduce((a, c) => {
+      a += c * id
+      return a
+    }, 0)
+    acc += totalIndicesTimesId
+
+    return acc
+  }, 0)
+
+  console.log({ result })
 
   console.timeEnd('total duration', 'end')
 })
