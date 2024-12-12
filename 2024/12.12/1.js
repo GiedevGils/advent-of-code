@@ -11,42 +11,53 @@ input.on('line', line => {
   grid.push(line.split(''))
 })
 
-const { getDirectSurrounding, isDirectAdjacent } = makeGridTraverser(grid)
+const { getDirectSurrounding } = makeGridTraverser(grid)
 
 input.on('close', () => {
   console.time('total duration')
   console.timeLog('total duration', 'start')
 
-  const plots = {}
+  const plots = []
+  const visited = new Set()
 
   grid.forEach((row, idxX) => {
-    row.forEach((plant, idxY) => {
-      const newCoord = createCoordinate(idxX, idxY)
+    row.forEach((currentPlant, idxY) => {
+      const currentCoord = createCoordinate(idxX, idxY)
 
-      const plotsForPlant = plots[plant]
+      if (visited.has(currentCoord)) return
 
-      if (plotsForPlant) {
-        const knownPlots = plotsForPlant
+      const queue = []
 
-        let isRelated = false
+      queue.push({ coords: currentCoord, prevValue: currentPlant })
 
-        knownPlots.forEach((coords, idx) => {
-          const isDirectAdjacentToExisting = coords.some(coord => isDirectAdjacent(coord.split(',').map(Number), [idxX, idxY]))
+      const currentPlot = []
 
-          if (isDirectAdjacentToExisting) {
-            plots[plant][idx].push(newCoord)
-            isRelated = true
-          }
-        })
+      console.timeLog('total duration')
 
-        if (!isRelated) plots[plant].push([newCoord])
+      while (queue.length) {
+        const { coords, prevValue } = queue.shift()
+        const [iX, iY] = coords.split(',').map(Number)
+
+        if (visited.has(coords)) continue // we have already added this item to its plot
+
+        if (prevValue === currentPlant) {
+          currentPlot.push(coords)
+          visited.add(coords)
+        } else {
+          continue
+        }
+
+        const surrounding = getDirectSurrounding(iX, iY)
+        queue.push(
+          ...Object.values(surrounding)
+            .filter(x => x.value)
+            .map(x => ({ coords: createCoordinate(x.newIdxX, x.newIdxY), prevValue: x.value })))
       }
 
-      if (!plotsForPlant) plots[plant] = [[newCoord]]
+      plots.push(currentPlot)
     })
   })
 
-  console.table(grid)
   console.log(plots)
 
   const price = determinePrice(plots)
@@ -59,30 +70,28 @@ input.on('close', () => {
 function determinePrice (plots) {
   let price = 0
 
-  Object.entries(plots).forEach(([plant, plots]) => {
-    plots.forEach(coords => {
-      const perimeter = []
+  plots.forEach((plot) => {
+    const perimeter = []
 
-      coords.forEach(coord => {
-        const [x, y] = coord.split(',').map(Number)
+    plot.forEach(coord => {
+      const [x, y] = coord.split(',').map(Number)
+      const plant = grid[x][y]
 
-        const surrounding = getDirectSurrounding(x, y)
+      const surrounding = getDirectSurrounding(x, y)
 
-        Object.values(surrounding).forEach(({ value, newIdxX, newIdxY }) => {
-          if (value !== plant) {
-            perimeter.push(createCoordinate(newIdxX, newIdxY))
-          }
-        })
+      Object.values(surrounding).forEach(({ value, newIdxX, newIdxY }) => {
+        if (value !== plant) {
+          perimeter.push(createCoordinate(newIdxX, newIdxY))
+        }
       })
-
-      console.log({
-        plant,
-        area: coords.length,
-        perimeter: perimeter.length
-      })
-
-      price += perimeter.length * coords.length
     })
+
+    console.log({
+      area: plot.length,
+      perimeter: perimeter.length
+    })
+
+    price += perimeter.length * plot.length
   })
 
   return price
