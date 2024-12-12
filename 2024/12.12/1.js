@@ -1,5 +1,6 @@
 const fs = require('fs')
 const readline = require('readline')
+
 const { makeGridTraverser, createCoordinate } = require('../../lib/js')
 
 const input = readline.createInterface({ input: fs.createReadStream('./input.txt') })
@@ -22,24 +23,30 @@ input.on('close', () => {
     row.forEach((plant, idxY) => {
       const newCoord = createCoordinate(idxX, idxY)
 
-      console.log(plots)
+      const plotsForPlant = plots[plant]
 
-      if (plots[plant]) {
-        const knownPlots = plots[plant]
+      if (plotsForPlant) {
+        const knownPlots = plotsForPlant
 
-        knownPlots.forEach((coords) => {
+        let isRelated = false
+
+        knownPlots.forEach((coords, idx) => {
           const isDirectAdjacentToExisting = coords.some(coord => isDirectAdjacent(coord.split(',').map(Number), [idxX, idxY]))
 
           if (isDirectAdjacentToExisting) {
-            coords.push(newCoord)
+            plots[plant][idx].push(newCoord)
+            isRelated = true
           }
         })
+
+        if (!isRelated) plots[plant].push([newCoord])
       }
 
-      if (!plots[plant]) plots[plant] = [[newCoord]]
+      if (!plotsForPlant) plots[plant] = [[newCoord]]
     })
   })
 
+  console.table(grid)
   console.log(plots)
 
   const price = determinePrice(plots)
@@ -52,21 +59,30 @@ input.on('close', () => {
 function determinePrice (plots) {
   let price = 0
 
-  Object.entries(plots).forEach(([plant, coords]) => {
-    const perimeter = []
-    coords.forEach(coord => {
-      const [x, y] = coord.split(',').map(Number)
+  Object.entries(plots).forEach(([plant, plots]) => {
+    plots.forEach(coords => {
+      const perimeter = []
 
-      const surrounding = getDirectSurrounding(x, y)
+      coords.forEach(coord => {
+        const [x, y] = coord.split(',').map(Number)
 
-      Object.values(surrounding).forEach(({ value, newIdxX, newIdxY }) => {
-        if (value !== plant) {
-          perimeter.push(createCoordinate(newIdxX, newIdxY))
-        }
+        const surrounding = getDirectSurrounding(x, y)
+
+        Object.values(surrounding).forEach(({ value, newIdxX, newIdxY }) => {
+          if (value !== plant) {
+            perimeter.push(createCoordinate(newIdxX, newIdxY))
+          }
+        })
       })
+
+      console.log({
+        plant,
+        area: coords.length,
+        perimeter: perimeter.length
+      })
+
+      price += perimeter.length * coords.length
     })
-    price += coords.length * perimeter.length
-    console.log({ plant, perimeter: perimeter.length, coords: coords.length })
   })
 
   return price
