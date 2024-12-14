@@ -71,27 +71,44 @@ function determinePrice (plots) {
   let price = 0
 
   plots.forEach((plot) => {
-    const sides = new Set()
+    let corners = 0
 
-    plot.forEach(coord => {
-      const [x, y] = coord.split(',').map(Number)
-      const plant = grid[x][y]
+    if (plot.length === 1) corners = 4
 
-      const surrounding = getDirectSurrounding(x, y)
+    if (plot.length > 1) {
+      plot.forEach(coord => {
+        const [x, y] = coord.split(',').map(Number)
+        const plant = grid[x][y]
 
-      Object.values(surrounding).forEach(({ value, newIdxX, newIdxY }) => {
-        if (value !== plant) {
-          sides.add(createCoordinate(newIdxX, newIdxY))
+        const surrounding = getDirectSurrounding(x, y)
+        const sameNeighbours = {}
+
+        Object.entries(surrounding).forEach(([key, value]) => {
+          if (value.value === plant) {
+            sameNeighbours[key] = value
+          }
+        })
+
+        const keys = Object.keys(sameNeighbours)
+
+        console.log(keys)
+
+        if (keys.length === 2 && !(
+          ['above', 'below'].every(x => keys.includes(x)) ||
+          ['left', 'right'].every(x => keys.includes(x))
+        )) {
+          corners++
         }
+        if (keys.length === 1) corners += 2
       })
-    })
+    }
 
     console.log({
       area: plot.length,
-      nrOfSides: sides.size
+      corners
     })
 
-    price += sides.size * plot.length
+    price += corners * plot.length
   })
 
   return price
