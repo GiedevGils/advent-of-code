@@ -15,12 +15,19 @@ input.on('close', () => {
 
   const input = parseInput(lines)
 
-  const total = 0
+  const results = []
 
   input.forEach(machine => {
-    console.log(machine)
+    const { buttons, prize } = machine
+
+    const result = solveAdventPuzzle(prize.x, prize.y, buttons.A, buttons.B)
+
+    if (result.cost !== Infinity) {
+      results.push(result)
+    }
   })
 
+  console.log({ result: results.reduce((a, c) => (a += c.cost), 0) })
   console.timeEnd('total duration', 'end')
 })
 
@@ -55,4 +62,38 @@ function parseInput (lines) {
   })
 
   return inputs
+}
+
+function solveAdventPuzzle (targetX, targetY, buttonA, buttonB) {
+  const costA = 3 // Cost of pressing Button A
+  const costB = 1 // Cost of pressing Button B
+
+  let minCost = Infinity
+  let bestA = 0
+  let bestB = 0
+
+  // Solve modular arithmetic to find possible b values
+  const mod = buttonA.x // Modulus for solving
+  const targetMod = targetX % mod
+
+  for (let b = 0; b < 10000; b++) { // Search space for b, large enough to ensure we get solutions
+    if ((buttonB.x * b) % mod === targetMod) {
+      // Found a valid b, calculate corresponding a
+      const a = (targetX - buttonB.x * b) / buttonA.x
+
+      if (Number.isInteger(a) && a >= 0) {
+        // Check if this (a, b) satisfies the second equation
+        if (buttonA.y * a + buttonB.y * b === targetY) {
+          const cost = costA * a + costB * b
+          if (cost < minCost) {
+            minCost = cost
+            bestA = a
+            bestB = b
+          }
+        }
+      }
+    }
+  }
+
+  return { a: bestA, b: bestB, cost: minCost }
 }
