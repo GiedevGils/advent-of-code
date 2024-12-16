@@ -99,6 +99,7 @@ function findPaths () {
         if (direction === newDirection) {
           // do nothing
         } else if (
+          // this means turning twice.
           (newDirection === 'above' && direction === 'below') ||
           (newDirection === 'below' && direction === 'above') ||
           (newDirection === 'left' && direction === 'right') ||
@@ -110,8 +111,8 @@ function findPaths () {
         }
 
         queue.push({
-          coords: [newCoords.newIdxX, newCoords.newIdxY],
-          pathLength: pathLength + 1,
+          coords: direction === newDirection ? [newCoords.newIdxX, newCoords.newIdxY] : coords,
+          pathLength: direction === newDirection ? pathLength + 1 : pathLength,
           turns: turns + turnsToAdd,
           direction: newDirection,
           visited: clone(visited)
